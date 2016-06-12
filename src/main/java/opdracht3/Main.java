@@ -5,7 +5,7 @@ import processing.core.PApplet;
 import java.util.*;
 
 /**
- * Created by Godfather on 30-5-2016.
+ * Created by Zahey Boukich on 30-5-2016.
  */
 public class Main extends PApplet {
 
@@ -23,8 +23,6 @@ public class Main extends PApplet {
     private float maxX;
     private float minY;
     private float maxY;
-    private float minZ;
-    private float maxZ;
 
     float xo;
     float yo;
@@ -32,7 +30,7 @@ public class Main extends PApplet {
     boolean play;
     boolean pause;
 
-    private int loop;
+    private int runner;
     private int zoom;
 
     private List<Map<String, Float>> dataList = new ArrayList<>();
@@ -43,7 +41,7 @@ public class Main extends PApplet {
 
     public void setup() {
         this.dataList = loadData(HOOGTEBESTAND);
-        loop = 0;
+        runner = 0;
         zoom = 500;
         saveMinAndMaxValue();
     }
@@ -51,11 +49,12 @@ public class Main extends PApplet {
     public void draw() {
         background(50);
         translate(xo, yo);
-        go();
-        System.out.println(loop);
+
+        prepareData();
     }
 
-    private void go() {
+    // extraxt x,y,z map each value
+    private void prepareData() {
         for (int i = 0; i < dataList.size(); i++) {
             float xValue = dataList.get(i).get(headers[0]);
             float yValue = dataList.get(i).get(headers[1]);
@@ -64,23 +63,25 @@ public class Main extends PApplet {
             float xMapValue = map(xValue, minX, maxX, 0, zoom);
             float yMapValue = map(yValue, minY, maxY, 0, zoom);
 
-            prepareAnimation(zValue, loop);
+            prepareAnimation(zValue, runner);
             rect(xMapValue, yMapValue, 1, 1);
         }
         if (pause) {
-            loop += 0;
+            runner += 0;
             writeText("Pause", 10, 30);
         }
         if (!pause) {
-            loop += 1;
+            runner += 1;
         }
     }
+
 
     private void writeText(String text, int x, int y) {
         textSize(32);
         text(text, x, y);
         fill(0, 0, 0);
     }
+
 
     private void prepareAnimation(float z, int loop) {
         if (play) {
@@ -90,6 +91,9 @@ public class Main extends PApplet {
         }
 
     }
+
+    // According to the ranges of the z values height give a color to simulate flote
+    // lowest z value is like -1.889  highest is like 32  so i created ranges of 2 to simulate effect
 
     private void checkHeight(float z, int loop) {
 
@@ -256,12 +260,10 @@ public class Main extends PApplet {
             if(loop >= 15)
             {
                 stroke(0,0,255);
-                return;
             }
             else
             {
                 stroke(255,0,0);
-                return;
             }
         }
 
@@ -305,12 +307,13 @@ public class Main extends PApplet {
         maxY = Collections.max(listY);
     }
 
-
+    // make dragging the animation with mouse possible
     public void mouseDragged() {
         xo = xo + (mouseX - pmouseX);
         yo = yo + (mouseY - pmouseY);
     }
 
+    // According to which key pressed change the value of pause or play
     public void keyPressed() {
 
         if (key == CODED) {
@@ -330,18 +333,18 @@ public class Main extends PApplet {
                     break;
                 case LEFT:
                     if (!pause) {
-                        loop = 0;
+                        runner = 0;
                         play = true;
                     }
                     break;
                 case RIGHT:
                     if (!pause) {
-                        loop = 0;
+                        runner = 0;
                         play = false;
                     }
             }
 
-
+            // save the file if s pressed
         } else if (keyPressed) {
             if (key == 's') {
                 save("overstroming.jpg");
